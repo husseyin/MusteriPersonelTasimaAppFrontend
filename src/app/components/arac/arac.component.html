@@ -1,0 +1,97 @@
+<!-- Arac Toast -->
+<p-toast [baseZIndex]="10000"></p-toast>
+
+<!-- Arac Dialog -->
+<p-dialog [(visible)]="aracDialog" [style]="{width: '30%'}" position="top" [transitionOptions]="'250ms'"
+    [draggable]="false" [resizable]="false" header="Araç Detay" [modal]="true" styleClass="p-fluid"
+    (onHide)="cancelAracDialog()">
+    <ng-template pTemplate="content">
+        <form [formGroup]="aracForm">
+            <div class="p-field p-col-12 p-md-2 mt-3">
+                <span class="p-float-label">
+                    <input type="text" formControlName="aracPlaka" pInputText id="aracPlaka" />
+                    <label for="aracPlaka">Araç Plaka<small class="p-error"
+                            *ngIf="!aracForm.controls['aracPlaka'].valid">
+                            (*zorunlu)</small> </label>
+                </span>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="İptal" icon="pi pi-times" class="p-button-sm p-button-outlined  p-button-info"
+            (click)="cancelAracDialog()"></button>
+        <button pButton pRipple label="Kaydet" icon="pi pi-check" class="p-button-sm p-button-outlined  p-button-info"
+            (click)="saveAracDialog()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Arac Confirm -->
+<p-confirmDialog [style]="{width: '450px'}" position="top" [transitionOptions]="'250ms'"></p-confirmDialog>
+
+<!-- Arac Table -->
+<p-panel header="Araç Yönetimi" [style]="{'margin': '1em'}">
+    <ng-template pTemplate="icons">
+        <button pButton pRipple type="button" label="güzergahlar"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text"
+            [routerLink]="['/guzergahlar']"></button>
+        <button pButton pRipple type="button" label="şoförler"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/soforler']"></button>
+        <button pButton pRipple type="button" label="kullanıcılar"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/users']"></button>
+        <button pButton pRipple type="button" icon="pi pi-times"
+            class="p-button-sm p-button-rounded p-button-danger p-button-outlined" (click)="exit()"></button>
+    </ng-template>
+    <p-table #dtArac dataKey="aracId" [value]="araclar" selectionMode="multiple" [(selection)]="selectedAraclar"
+        [paginator]="true" [rows]="10" [showCurrentPageReport]="true" [loading]="loading"
+        [rowsPerPageOptions]="[10, 20, 50, 100]" styleClass="p-datatable-sm" responsiveLayout="scroll"
+        [globalFilterFields]="['aracId', 'aracPlaka', 'firma']" [rowHover]="true" [scrollable]="true"
+        scrollHeight="400px">
+        <ng-template pTemplate="caption">
+            <button pButton pRipple label="Ekle" icon="pi pi-plus"
+                class="p-button-sm p-button-outlined p-button-rounded p-button-success" style="margin-right: 5px"
+                (click)="aracDialog=true"></button>
+            <button pButton pRipple label="Sil" icon="pi pi-trash"
+                class="p-button-sm p-button-outlined p-button-rounded p-button-danger" style="margin-left: 5px"
+                [disabled]="!selectedAraclar || !selectedAraclar.length" (click)="deleteAllAracConfirm()"></button>
+            <span class="p-input-icon-right" style="float: right;">
+                <input pInputText type="text" class="p-inputtext-sm"
+                    (input)="dtArac.filterGlobal($event.target.value, 'contains')" placeholder="Ara" />
+                <i class="pi pi-search"></i>
+            </span>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="max-width: 4rem;">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th style="max-width: 7rem;">İşlemler</th>
+                <th pSortableColumn="aracId">Araç Id<p-sortIcon field="aracId"></p-sortIcon>
+                </th>
+                <th pSortableColumn="aracPlaka">Araç Plaka<p-sortIcon field="aracPlaka">
+                    </p-sortIcon>
+                </th>
+                <th pSortableColumn="firma">Firma<p-sortIcon field="firma"></p-sortIcon>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-arac>
+            <tr [pSelectableRow]="arac">
+                <td style="max-width: 4rem;">
+                    <p-tableCheckbox [value]="arac"></p-tableCheckbox>
+                </td>
+                <td style="max-width: 7rem">
+                    <button pButton pRipple icon="pi pi-pencil"
+                        class=" p-button-outlined p-button-rounded p-button-success"
+                        style="margin-right: 5px; width: 2rem; height: 2rem;" (click)="updateAracButton(arac)"></button>
+                    <button pButton pRipple icon="pi pi-trash"
+                        class=" p-button-outlined p-button-rounded p-button-danger"
+                        style="margin-left: 5px; width: 2rem; height: 2rem" (click)="deleteAracConfirm(arac)"></button>
+                </td>
+                <td>{{arac.aracId}}</td>
+                <td>{{arac.aracPlaka}}</td>
+                <td>{{arac.firma}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-panel>

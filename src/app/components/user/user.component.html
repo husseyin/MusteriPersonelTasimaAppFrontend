@@ -1,0 +1,127 @@
+<!-- User Toast -->
+<p-toast [baseZIndex]="10000"></p-toast>
+
+<!-- User Dialog -->
+<p-dialog [(visible)]="userDialog" [style]="{width: '30%'}" position="top" [transitionOptions]="'250ms'"
+    [draggable]="false" [resizable]="false" header="Kullanıcı Detay" [modal]="true" styleClass="p-fluid"
+    (onHide)="cancelUserDialog()">
+    <ng-template pTemplate="content">
+        <form [formGroup]="userForm">
+            <div class="p-field p-col-12 p-md-2 mt-3">
+                <span class="p-float-label">
+                    <input type="text" formControlName="kullaniciAdi" pInputText id="kullaniciAdi" />
+                    <label for="kullaniciAdi">Kullanıcı Adı<small class="p-error"
+                            *ngIf="!userForm.controls['kullaniciAdi'].valid">
+                            (*zorunlu)</small> </label>
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-md-2 mt-2">
+                <span class="p-float-label">
+                    <input type="text" formControlName="email" pInputText id="email" />
+                    <label for="email">Email<small class="p-error" *ngIf="!userForm.controls['email'].valid">
+                            (*zorunlu)</small> </label>
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-md-2 mt-2">
+                <span class="p-float-label">
+                    <input type="text" formControlName="sifre" pInputText id="sifre" />
+                    <label for="sifre">Şifre<small class="p-error" *ngIf="!userForm.controls['sifre'].valid">
+                            (*zorunlu)</small> </label>
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-md-2 mt-2">
+                <span class="p-float-label">
+                    <input type="text" formControlName="firma" pInputText id="firma" />
+                    <label for="firma">Firma<small class="p-error" *ngIf="!userForm.controls['firma'].valid">
+                            (*zorunlu)</small> </label>
+                </span>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="İptal" icon="pi pi-times" class="p-button-sm p-button-outlined  p-button-info"
+            (click)="cancelUserDialog()"></button>
+        <button pButton pRipple label="Kaydet" icon="pi pi-check" class="p-button-sm p-button-outlined  p-button-info"
+            (click)="saveUserDialog()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- User Confirm -->
+<p-confirmDialog [style]="{width: '450px'}" position="top" [transitionOptions]="'250ms'"></p-confirmDialog>
+
+<!-- User Table -->
+<p-panel header="Kullanıcı Yönetimi" [style]="{'margin': '1em'}">
+    <ng-template pTemplate="icons">
+        <button pButton pRipple type="button" label="araçlar"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/araclar']"></button>
+        <button pButton pRipple type="button" label="güzergahlar"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text"
+            [routerLink]="['/guzergahlar']"></button>
+        <button pButton pRipple type="button" label="şoförler"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/soforler']"></button>
+        <button pButton pRipple type="button" icon="pi pi-times"
+            class="p-button-sm p-button-rounded p-button-danger p-button-outlined" (click)="exit()"></button>
+    </ng-template>
+    <p-table #dtUser dataKey="userId" [value]="users" selectionMode="multiple" [(selection)]="selectedUsers"
+        [paginator]="true" [rows]="10" [showCurrentPageReport]="true" [loading]="loading"
+        [rowsPerPageOptions]="[10, 20, 50, 100]" styleClass="p-datatable-sm" responsiveLayout="scroll"
+        [globalFilterFields]="['userId', 'kullaniciAdi', 'email', 'firma']" [rowHover]="true" [scrollable]="true"
+        scrollHeight="400px">
+        <ng-template pTemplate="caption">
+            <button pButton pRipple label="Ekle" icon="pi pi-plus"
+                class="p-button-sm p-button-outlined p-button-rounded p-button-success" style="margin-right: 5px"
+                (click)="userDialog=true"></button>
+            <button pButton pRipple label="Sil" icon="pi pi-trash"
+                class="p-button-sm p-button-outlined p-button-rounded p-button-danger" style="margin-left: 5px"
+                [disabled]="!selectedUsers || !selectedUsers.length" (click)="deleteAllUserConfirm()"></button>
+            <span class="p-input-icon-right" style="float: right;">
+                <input pInputText type="text" class="p-inputtext-sm"
+                    (input)="dtUser.filterGlobal($event.target.value, 'contains')" placeholder="Ara" />
+                <i class="pi pi-search"></i>
+            </span>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="max-width: 4rem;">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th style="max-width: 7rem;">İşlemler</th>
+                <th pSortableColumn="userId">Kullanıcı Id<p-sortIcon field="userId"></p-sortIcon>
+                </th>
+                <th pSortableColumn="kullaniciAdi">Kullanıcı Adı<p-sortIcon field="kullaniciAdi">
+                    </p-sortIcon>
+                </th>
+                <th pSortableColumn="email">Email<p-sortIcon field="email">
+                    </p-sortIcon>
+                </th>
+                <th pSortableColumn="sifre">Şifre<p-sortIcon field="sifre">
+                    </p-sortIcon>
+                </th>
+                <th pSortableColumn="firma">Firma<p-sortIcon field="firma">
+                    </p-sortIcon>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user>
+            <tr [pSelectableRow]="user">
+                <td style="max-width: 4rem;">
+                    <p-tableCheckbox [value]="user"></p-tableCheckbox>
+                </td>
+                <td style="max-width: 7rem">
+                    <button pButton pRipple icon="pi pi-pencil"
+                        class=" p-button-outlined p-button-rounded p-button-success"
+                        style="margin-right: 5px; width: 2rem; height: 2rem;" (click)="updateUserButton(user)"></button>
+                    <button pButton pRipple icon="pi pi-trash"
+                        class=" p-button-outlined p-button-rounded p-button-danger"
+                        style="margin-left: 5px; width: 2rem; height: 2rem" (click)="deleteUserConfirm(user)"></button>
+                </td>
+                <td>{{user.userId}}</td>
+                <td>{{user.kullaniciAdi}}</td>
+                <td>{{user.email}}</td>
+                <td>{{user.sifre}}</td>
+                <td>{{user.firma}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-panel>

@@ -1,0 +1,115 @@
+<!-- Guzergah Toast -->
+<p-toast [baseZIndex]="10000"></p-toast>
+
+<!-- Guzergah Map -->
+<p-gmap #gmap [options]="options" [overlays]="overlays" [style]="{'width':'100%','height':'320px'}"
+    (onMapClick)="handleMapClick($event)" (onOverlayClick)="handleOverlayClick()"></p-gmap>
+
+<!-- Guzergah Dialog -->
+<p-dialog [(visible)]="guzergahDialog" [style]="{width: '30%'}" position="top" [transitionOptions]="'250ms'"
+    [draggable]="false" [resizable]="false" header="Güzergah Detay" [modal]="true" styleClass="p-fluid"
+    (onHide)="cancelGuzergahDialog()">
+    <ng-template pTemplate="content">
+        <form [formGroup]="guzergahForm">
+            <div class="p-field p-col-12 p-md-2 mt-3">
+                <span class="p-float-label">
+                    <input type="text" formControlName="guzergahAdi" pInputText id="guzergahAdi" />
+                    <label for="guzergahAdi">Güzergah Adi<small class="p-error"
+                            *ngIf="!guzergahForm.controls['guzergahAdi'].valid">
+                            (*zorunlu)</small> </label>
+                </span>
+            </div>
+            <div class="p-field p-col-12 p-md-2 mt-2">
+                <span class="p-float-label">
+                    <input type="text" formControlName="guzergahLoc" pInputText id="guzergahLoc" readonly />
+                    <label for="guzergahLoc">Güzergah Loc<small class="p-error"
+                            *ngIf="!guzergahForm.controls['guzergahLoc'].valid">
+                            (*konum seçin)</small> </label>
+                </span>
+            </div>
+        </form>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="İptal" icon="pi pi-times" class="p-button-sm p-button-outlined  p-button-info"
+            (click)="cancelGuzergahDialog()"></button>
+        <button pButton pRipple label="Kaydet" icon="pi pi-check" class="p-button-sm p-button-outlined  p-button-info"
+            (click)="saveGuzergahDialog()"></button>
+    </ng-template>
+</p-dialog>
+
+<!-- Guzergah Confirm -->
+<p-confirmDialog [style]="{width: '450px'}" position="top" [transitionOptions]="'250ms'"></p-confirmDialog>
+
+<!-- Guzergah Table -->
+<p-panel header="Güzergah Yönetimi" [style]="{'margin': '1em'}">
+    <ng-template pTemplate="icons">
+        <button pButton pRipple type="button" label="araçlar"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/araclar']"></button>
+        <button pButton pRipple type="button" label="şoförler"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/soforler']"></button>
+        <button pButton pRipple type="button" label="kullanıcılar"
+            class="p-button-sm p-button-rounded p-button-secondary p-button-text" [routerLink]="['/users']"></button>
+        <button pButton pRipple type="button" icon="pi pi-times"
+            class="p-button-sm p-button-rounded p-button-danger p-button-outlined" (click)="exit()"></button>
+    </ng-template>
+    <p-table #dtGuzergah dataKey="guzergahId" [value]="guzergahlar" selectionMode="multiple"
+        [(selection)]="selectedGuzergahlar" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+        [loading]="loading" [rowsPerPageOptions]="[10, 20, 50, 100]" styleClass="p-datatable-sm"
+        responsiveLayout="scroll" [globalFilterFields]="['guzergahId', 'guzergahAdi', 'guzergahLoc', 'firma']"
+        [rowHover]="true" [scrollable]="true" scrollHeight="400px">
+        <ng-template pTemplate="caption">
+            <button pButton pRipple label="Ekle" icon="pi pi-plus"
+                class="p-button-sm p-button-outlined p-button-rounded p-button-success" style="margin-right: 5px"
+                (click)="guzergahDialog=true"></button>
+            <button pButton pRipple label="Sil" icon="pi pi-trash"
+                class="p-button-sm p-button-outlined p-button-rounded p-button-danger" style="margin-left: 5px"
+                [disabled]="!selectedGuzergahlar || !selectedGuzergahlar.length"
+                (click)="deleteAllGuzergahConfirm()"></button>
+            <span class="p-input-icon-right" style="float: right;">
+                <input pInputText type="text" class="p-inputtext-sm"
+                    (input)="dtGuzergah.filterGlobal($event.target.value, 'contains')" placeholder="Ara" />
+                <i class="pi pi-search"></i>
+            </span>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="max-width: 4rem;">
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th style="max-width: 7rem;">İşlemler </th>
+                <th pSortableColumn="guzergahId">Güzergah Id<p-sortIcon field="guzergahId"></p-sortIcon>
+                </th>
+                <th pSortableColumn="guzergahAdi">Güzergah Adi<p-sortIcon field="guzergahAdi">
+                    </p-sortIcon>
+                </th>
+                <th pSortableColumn="guzergahLoc">Güzergah Loc<p-sortIcon field="guzergahLoc">
+                    </p-sortIcon>
+                </th>
+                <th pSortableColumn="firma">Firma<p-sortIcon field="firma"></p-sortIcon>
+                </th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-guzergah>
+            <tr [pSelectableRow]="guzergah">
+                <td style="max-width: 4rem;">
+                    <p-tableCheckbox [value]="guzergah"></p-tableCheckbox>
+                </td>
+                <td style="max-width: 7rem">
+                    <button pButton pRipple icon="pi pi-pencil"
+                        class=" p-button-outlined p-button-rounded p-button-success"
+                        style="margin-right: 5px; width: 2rem; height: 2rem;"
+                        (click)="updateGuzergahButton(guzergah)"></button>
+                    <button pButton pRipple icon="pi pi-trash"
+                        class=" p-button-outlined p-button-rounded p-button-danger"
+                        style="margin-left: 5px; width: 2rem; height: 2rem"
+                        (click)="deleteGuzergahConfirm(guzergah)"></button>
+                </td>
+                <td>{{guzergah.guzergahId}}</td>
+                <td>{{guzergah.guzergahAdi}}</td>
+                <td>{{guzergah.guzergahLoc}}</td>
+                <td>{{guzergah.firma}}</td>
+            </tr>
+        </ng-template>
+    </p-table>
+</p-panel>
